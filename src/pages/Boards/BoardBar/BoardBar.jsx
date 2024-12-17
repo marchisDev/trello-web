@@ -35,7 +35,6 @@ function BoardBar() {
         gap: 2,
         px: 2,
         bgcolor: (theme) => theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
-        borderBottom: '1px solid white',
         '&::-webkit-scrollbar-track': { m: 2 }
       }}
     >

@@ -17,16 +17,15 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import AddCardIcon from '@mui/icons-material/AddCard'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import ListCards from './ListCards/ListCards'
+import { mapOrder } from '~/utils/sorts'
 
-function Column() {
+function Column({ column }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
+  const handleClick = (event) => {setAnchorEl(event.currentTarget)}
+  const handleClose = () => { setAnchorEl(null) }
+  
+  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
   return (
     <Box
       sx={{
@@ -38,7 +37,7 @@ function Column() {
         borderRadius: '8px',
         height: 'fit-content',
         maxHeight: (theme) =>
-          `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`,
+          `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
       }}
     >
       {/* Column Header */}
@@ -48,7 +47,7 @@ function Column() {
           p: 2,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'space-between'
         }}
       >
         <Typography
@@ -56,17 +55,17 @@ function Column() {
           sx={{
             fontSize: '1rem',
             fontWeight: 'bold',
-            cursor: 'pointer',
+            cursor: 'pointer'
           }}
         >
-          Column Title
+          {column?.title}
         </Typography>
         <Box>
           <Tooltip title='More options'>
             <ExpandMoreIcon
               sx={{
                 color: 'text.primary',
-                cursor: 'pointer',
+                cursor: 'pointer'
               }}
               id='basic-column-dropdown'
               aria-controls={open ? 'basic-menu-column-dropdown' : undefined}
@@ -81,7 +80,7 @@ function Column() {
             open={open}
             onClose={handleClose}
             MenuListProps={{
-              'aria-labelledby': 'basic-column-dropdown',
+              'aria-labelledby': 'basic-column-dropdown'
             }}
           >
             <MenuItem>
@@ -126,7 +125,7 @@ function Column() {
       </Box>
 
       {/* List Cards */}
-      <ListCards />
+      <ListCards cards={orderedCards} />
 
       {/* Column Footer */}
       <Box
@@ -135,7 +134,7 @@ function Column() {
           p: 2,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'space-between'
         }}
       >
         <Button startIcon={<AddCardIcon />}>Add new card</Button>

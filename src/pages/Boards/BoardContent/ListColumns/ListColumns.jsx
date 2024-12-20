@@ -4,7 +4,7 @@ import Button from '@mui/material/Button'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import {
   SortableContext,
-  horizontalListSortingStrategy,
+  horizontalListSortingStrategy
 } from '@dnd-kit/sortable'
 
 function ListColumns({ columns }) {
@@ -22,7 +22,7 @@ function ListColumns({ columns }) {
           display: 'flex',
           overflowX: 'auto',
           overflowY: 'hidden',
-          '&::-webkit-scrollbar-track': { m: 2 },
+          '&::-webkit-scrollbar-track': { m: 2 }
         }}
       >
         {columns?.map((column) => (
@@ -37,7 +37,7 @@ function ListColumns({ columns }) {
             mx: 2,
             borderRadius: '6px',
             height: 'fit-content',
-            bgcolor: '#ffffff3d',
+            bgcolor: '#ffffff3d'
           }}
         >
           <Button
@@ -47,7 +47,7 @@ function ListColumns({ columns }) {
               width: '100%',
               justifyContent: 'flex-start',
               pl: 2.5,
-              py: 1,
+              py: 1
             }}
           >
             Add new column

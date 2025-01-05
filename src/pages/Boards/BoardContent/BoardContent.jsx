@@ -10,9 +10,13 @@ import {
   DragOverlay,
   defaultDropAnimationSideEffects,
   closestCorners,
+  pointerWithin,
+  rectIntersection,
+  getFirstCollision,
+  closestCenter
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { cloneDeep } from 'lodash'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
@@ -22,6 +26,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
+import { use } from 'react'
 
 function BoardContent({ board }) {
   // https://docs.dndkit.com/api-documentation/sensors#usesensor
@@ -51,8 +56,10 @@ function BoardContent({ board }) {
   const [activeDragItemId, setActiveDragItemId] = useState(null)
   const [activeDragItemType, setActiveDragItemType] = useState(null)
   const [activeDragItemData, setActiveDragItemData] = useState(null)
-  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] =
-    useState(null)
+  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState(null)
+
+  // diem va cham cuoi cung (xu li thuat toan phat hien va cham vid#37)
+  const lastOverId = useRef(null)
 
   useEffect(() => {
     const orderedColumns = mapOrder(
@@ -90,8 +97,7 @@ function BoardContent({ board }) {
       let newCardIndex
       const isBelowOverItem =
         active.rect.current.translated &&
-        active.rect.current.translated.top >
-          over.rect.top + over.rect.height
+        active.rect.current.translated.top > over.rect.top + over.rect.height
       const modifier = isBelowOverItem ? 1 : 0
 
       newCardIndex =
@@ -129,7 +135,7 @@ function BoardContent({ board }) {
         // Phai cap nhat lai chuan du lieu column trong card sau khi keo card giua 2 column khac nhau
         const rebuild_activeDraggingCardData = {
           ...activeDraggingCardData,
-          columnId: nextOverColumn._id
+          columnId: nextOverColumn._id,
         }
 
         // them card dang keo vao overColumn
@@ -329,13 +335,57 @@ function BoardContent({ board }) {
       styles: { active: { opacity: '0.5' } },
     }),
   }
+
+  // args: tham so, doi so
+  const collisionDetectionStrategy = useCallback((args) => {
+    // neu la hanh dong keo column thi se dung thuat toan closetCorners
+    if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+      return closestCorners({ ...args })
+    }
+
+    // tim cac diem va cham, giao nhau - intersection vs con tro
+    const pointerIntersection = pointerWithin(args)
+
+    // thuat toan phat hien va cham se tra ve mot mang cac va cham o day
+    const intersection = !!pointerIntersection?.length
+      ? pointerIntersection
+      : rectIntersection(args)
+    
+    let overId = getFirstCollision(intersection, 'id')
+    if (overId) { 
+      // neu cai over no la mot column thi se tim toi cai cardId gan nhat ben trong khu vuc va cham do dua
+      // vao thuat toan phat hien va cham closestCorners hoac closestCenter deu duoc. Tuy nhien o day
+      // dung closesetCenter se muot ma hon.
+
+      const checkColumn = orderedColumns.find((column) => column._id === overId)
+      if (checkColumn) {
+        // console.log('overId before: ', overId)
+        overId = closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter(container => {
+            return (container.id !== overId) && (checkColumn?.cardOrderIds?.includes(container.id))
+          })
+        })[0]?.id
+        // console.log('overId after: ', overId)
+
+      }
+      lastOverId.current = overId
+      return [{ id: overId }]
+    }
+
+    // neu overId khong ton tai thi se tra ve mang rong
+    return lastOverId.current ? [{ id: lastOverId.current }] : []
+  }, [activeDragItemType, orderedColumns])
   return (
     <DndContext
       // cam bien da giai thich o #vd30
       sensors={sensors}
       // Thuat toan phat hien va cham giua cac element(neu khong co no thi card vs cover lon se khong keo qua duoc vi
       // luc nay no dang bi conflict giua card va column), chung ta se dung closetConner thay vi closestCenter
-      collisionDetection={closestCorners}
+      // collisionDetection={closestCorners}
+
+      // tu custom lai collisionDetectionStrategy de xu li keo tha card giua cac column(vid #37)
+      collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}

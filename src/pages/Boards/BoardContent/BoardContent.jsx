@@ -11,9 +11,9 @@ import {
   defaultDropAnimationSideEffects,
   closestCorners,
   pointerWithin,
-  rectIntersection,
-  getFirstCollision,
-  closestCenter
+  // rectIntersection,
+  getFirstCollision
+  // closestCenter,
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -21,12 +21,11 @@ import { cloneDeep } from 'lodash'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
-  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
+  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
 
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
-import { use } from 'react'
 
 function BoardContent({ board }) {
   // https://docs.dndkit.com/api-documentation/sensors#usesensor
@@ -38,12 +37,12 @@ function BoardContent({ board }) {
   // This line of code sets up a pointer sensor that activates when the pointer moves at least 10 pixels.
   // This is useful in scenarios like drag-and-drop interfaces to ensure that slight, unintended movements don't trigger the drag action.
   const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 10 },
+    activationConstraint: { distance: 10 }
   })
 
   // Nhấn giữ 250ms và di chuyển/ chênh lệch 5px mới bắt đầu kéo thả để kích hoạt event
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 250, tolerance: 500 },
+    activationConstraint: { delay: 250, tolerance: 500 }
   })
 
   // const sensors = useSensors(pointerSensor)
@@ -56,7 +55,8 @@ function BoardContent({ board }) {
   const [activeDragItemId, setActiveDragItemId] = useState(null)
   const [activeDragItemType, setActiveDragItemType] = useState(null)
   const [activeDragItemData, setActiveDragItemData] = useState(null)
-  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState(null)
+  const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] =
+    useState(null)
 
   // diem va cham cuoi cung (xu li thuat toan phat hien va cham vid#37)
   const lastOverId = useRef(null)
@@ -135,7 +135,7 @@ function BoardContent({ board }) {
         // Phai cap nhat lai chuan du lieu column trong card sau khi keo card giua 2 column khac nhau
         const rebuild_activeDraggingCardData = {
           ...activeDraggingCardData,
-          columnId: nextOverColumn._id,
+          columnId: nextOverColumn._id
         }
 
         // them card dang keo vao overColumn
@@ -191,7 +191,7 @@ function BoardContent({ board }) {
     // activeDraggingCardId: là cái card đang được kéo
     const {
       id: activeDraggingCardId,
-      data: { current: activeDraggingCardData },
+      data: { current: activeDraggingCardData }
     } = active
 
     // overCardId: là cái card đang tương tác trên hoặc dưới so vs cái card được kéo ở trên
@@ -233,7 +233,7 @@ function BoardContent({ board }) {
       // activeDraggingCardId: là cái card đang được kéo
       const {
         id: activeDraggingCardId,
-        data: { current: activeDraggingCardData },
+        data: { current: activeDraggingCardData }
       } = active
 
       // overCardId: là cái card đang tương tác trên hoặc dưới so vs cái card được kéo ở trên
@@ -313,7 +313,7 @@ function BoardContent({ board }) {
         const dndOrderedColumns = arrayMove(
           orderedColumns,
           oldColumnIndex,
-          oldColumnIndex
+          newColumnIndex
         )
         // Sau dùng để sử lí cập nhật lại vị trí của column trong database
         // const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
@@ -332,50 +332,62 @@ function BoardContent({ board }) {
 
   const customDropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
-      styles: { active: { opacity: '0.5' } },
-    }),
+      styles: { active: { opacity: '0.5' } }
+    })
   }
 
   // args: tham so, doi so
-  const collisionDetectionStrategy = useCallback((args) => {
-    // neu la hanh dong keo column thi se dung thuat toan closetCorners
-    if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
-      return closestCorners({ ...args })
-    }
-
-    // tim cac diem va cham, giao nhau - intersection vs con tro
-    const pointerIntersection = pointerWithin(args)
-
-    // thuat toan phat hien va cham se tra ve mot mang cac va cham o day
-    const intersection = !!pointerIntersection?.length
-      ? pointerIntersection
-      : rectIntersection(args)
-    
-    let overId = getFirstCollision(intersection, 'id')
-    if (overId) { 
-      // neu cai over no la mot column thi se tim toi cai cardId gan nhat ben trong khu vuc va cham do dua
-      // vao thuat toan phat hien va cham closestCorners hoac closestCenter deu duoc. Tuy nhien o day
-      // dung closesetCenter se muot ma hon.
-
-      const checkColumn = orderedColumns.find((column) => column._id === overId)
-      if (checkColumn) {
-        // console.log('overId before: ', overId)
-        overId = closestCenter({
-          ...args,
-          droppableContainers: args.droppableContainers.filter(container => {
-            return (container.id !== overId) && (checkColumn?.cardOrderIds?.includes(container.id))
-          })
-        })[0]?.id
-        // console.log('overId after: ', overId)
-
+  const collisionDetectionStrategy = useCallback(
+    (args) => {
+      // neu la hanh dong keo column thi se dung thuat toan closetCorners
+      if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+        return closestCorners({ ...args })
       }
-      lastOverId.current = overId
-      return [{ id: overId }]
-    }
 
-    // neu overId khong ton tai thi se tra ve mang rong
-    return lastOverId.current ? [{ id: lastOverId.current }] : []
-  }, [activeDragItemType, orderedColumns])
+      // tim cac diem va cham, giao nhau - intersection vs con tro
+      const pointerIntersection = pointerWithin(args)
+      // keo 1 card lon co image cover lon va keo len phia tren cung ra khoi khu vuc keo tha
+      if (!pointerIntersection?.length) return
+
+      // // thuat toan phat hien va cham se tra ve mot mang cac va cham o day
+      // const intersection = !!pointerIntersection?.length
+      //   ? pointerIntersection
+      //   : rectIntersection(args)
+
+      // tim overId dau tien trong dam pointerIntersection o tren
+      let overId = getFirstCollision(pointerIntersection, 'id')
+      if (overId) {
+        // neu cai over no la mot column thi se tim toi cai cardId gan nhat ben trong khu vuc va cham do dua
+        // vao thuat toan phat hien va cham closestCorners hoac closestCenter deu duoc. Tuy nhien o day
+        // dung closestCorners se muot ma hon.
+
+        const checkColumn = orderedColumns.find(
+          (column) => column._id === overId
+        )
+        if (checkColumn) {
+          // console.log('overId before: ', overId)
+          overId = closestCorners({
+            ...args,
+            droppableContainers: args.droppableContainers.filter(
+              (container) => {
+                return (
+                  container.id !== overId &&
+                  checkColumn?.cardOrderIds?.includes(container.id)
+                )
+              }
+            )
+          })[0]?.id
+          // console.log('overId after: ', overId)
+        }
+        lastOverId.current = overId
+        return [{ id: overId }]
+      }
+
+      // neu overId khong ton tai thi se tra ve mang rong
+      return lastOverId.current ? [{ id: lastOverId.current }] : []
+    },
+    [activeDragItemType, orderedColumns]
+  )
   return (
     <DndContext
       // cam bien da giai thich o #vd30
@@ -396,6 +408,7 @@ function BoardContent({ board }) {
             theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
           height: (theme) => theme.trello.boardContentHeight,
           width: '100%',
+          // eslint-disable-next-line comma-dangle
           p: '10px 0',
         }}
       >

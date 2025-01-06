@@ -12,16 +12,17 @@ import {
   closestCorners,
   pointerWithin,
   // rectIntersection,
-  getFirstCollision
+  getFirstCollision,
   // closestCenter,
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
-  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
+  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 }
 
 import Column from './ListColumns/Column/Column'
@@ -37,12 +38,12 @@ function BoardContent({ board }) {
   // This line of code sets up a pointer sensor that activates when the pointer moves at least 10 pixels.
   // This is useful in scenarios like drag-and-drop interfaces to ensure that slight, unintended movements don't trigger the drag action.
   const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 10 }
+    activationConstraint: { distance: 10 },
   })
 
   // Nhấn giữ 250ms và di chuyển/ chênh lệch 5px mới bắt đầu kéo thả để kích hoạt event
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 250, tolerance: 500 }
+    activationConstraint: { delay: 250, tolerance: 500 },
   })
 
   // const sensors = useSensors(pointerSensor)
@@ -120,6 +121,11 @@ function BoardContent({ board }) {
         nextActiveColumn.cards = nextActiveColumn.cards.filter(
           (card) => card._id !== activeDraggingCardId
         )
+
+        // them placeholder card neu nhu coluumn rong: bi keo het card di, khong con cai nao nua
+        if (isEmpty(nextActiveColumn.cards)) {
+          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        }
         // cap nhat lai cardOrderIds cua activeColumn
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(
           (card) => card._id
@@ -135,7 +141,7 @@ function BoardContent({ board }) {
         // Phai cap nhat lai chuan du lieu column trong card sau khi keo card giua 2 column khac nhau
         const rebuild_activeDraggingCardData = {
           ...activeDraggingCardData,
-          columnId: nextOverColumn._id
+          columnId: nextOverColumn._id,
         }
 
         // them card dang keo vao overColumn
@@ -145,11 +151,14 @@ function BoardContent({ board }) {
           0,
           rebuild_activeDraggingCardData
         )
+        // xoa card placeholder neu nhu no dang ton tai
+        nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard)
         // cap nhat lai cardOrderIds cua overColumn
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map(
           (card) => card._id
         )
       }
+      console.log('nextColumns: ', nextColumns)
       return nextColumns
     })
   }
@@ -191,7 +200,7 @@ function BoardContent({ board }) {
     // activeDraggingCardId: là cái card đang được kéo
     const {
       id: activeDraggingCardId,
-      data: { current: activeDraggingCardData }
+      data: { current: activeDraggingCardData },
     } = active
 
     // overCardId: là cái card đang tương tác trên hoặc dưới so vs cái card được kéo ở trên
@@ -233,7 +242,7 @@ function BoardContent({ board }) {
       // activeDraggingCardId: là cái card đang được kéo
       const {
         id: activeDraggingCardId,
-        data: { current: activeDraggingCardData }
+        data: { current: activeDraggingCardData },
       } = active
 
       // overCardId: là cái card đang tương tác trên hoặc dưới so vs cái card được kéo ở trên
@@ -332,8 +341,8 @@ function BoardContent({ board }) {
 
   const customDropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
-      styles: { active: { opacity: '0.5' } }
-    })
+      styles: { active: { opacity: '0.5' } },
+    }),
   }
 
   // args: tham so, doi so
@@ -375,7 +384,7 @@ function BoardContent({ board }) {
                   checkColumn?.cardOrderIds?.includes(container.id)
                 )
               }
-            )
+            ),
           })[0]?.id
           // console.log('overId after: ', overId)
         }

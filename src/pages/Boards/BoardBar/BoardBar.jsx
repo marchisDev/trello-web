@@ -20,10 +20,11 @@ const MENU_STYLES = {
   borderRadius: '4px',
   '.MuiSvgIcon-root': { color: 'white' },
   '&:hover': {
-    bgcolor: 'primary.50'
-  }
+    bgcolor: 'primary.50',
+  },
 }
 function BoardBar({ board }) {
+  console.log(board)
   return (
     <Box
       sx={{
@@ -35,17 +36,20 @@ function BoardBar({ board }) {
         overflowX: 'auto',
         gap: 2,
         px: 2,
-        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
-        '&::-webkit-scrollbar-track': { m: 2 }
+        bgcolor: (theme) =>
+          theme.palette.mode === 'dark' ? '#34495e' : '#1976d2',
+        '&::-webkit-scrollbar-track': { m: 2 },
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Chip
-          sx={MENU_STYLES}
-          icon={<DashboardIcon />}
-          label= {board?.title}
-          clickable
-        />
+        <Tooltip title={board?.description}>
+          <Chip
+            sx={MENU_STYLES}
+            icon={<DashboardIcon />}
+            label={board?.title}
+            clickable
+          />
+        </Tooltip>
         <Chip
           sx={MENU_STYLES}
           icon={<VpnLockIcon />}
@@ -77,7 +81,7 @@ function BoardBar({ board }) {
           sx={{
             color: 'white',
             borderColor: 'white',
-            '&:hover': { borderColor: 'white' }
+            '&:hover': { borderColor: 'white' },
           }}
           startIcon={<PersonAddIcon />}
         >
@@ -94,8 +98,8 @@ function BoardBar({ board }) {
               border: 'none',
               color: 'white',
               cursor: 'pointer',
-              '&:first-of-type': { bgcolor: '#a4b0be' }
-            }
+              '&:first-of-type': { bgcolor: '#a4b0be' },
+            },
           }}
         >
           <Tooltip title='marchisDev'>

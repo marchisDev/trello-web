@@ -6,16 +6,15 @@ import { useEffect, useState } from 'react'
 import { fetchBoardDetailAPI } from '~/apis'
 
 function Board() {
-  const { board, setBoard } = useState(null)
+  const [board, setBoard] = useState(null)
 
   useEffect(() => {
     // tam thoi fix cung, flow chuan chinh ve sau se dung react-router-dom de lay id tu URL ve
-    const boardId = '678e1c2c7395bdc0dbcc0f2e'
+    const boardId = '678f798109598cdbc87c97d9'
     // call api de lay data
-    fetchBoardDetailAPI(boardId)
-      .then((board) => {
-        setBoard(board)
-      })
+    fetchBoardDetailAPI(boardId).then((board) => {
+      setBoard(board)
+    })
   }, [setBoard])
   return (
     <Container
@@ -24,8 +23,8 @@ function Board() {
       sx={{ height: '100vh', backgroundColor: 'primary.main' }}
     >
       <AppBar />
-      <BoardBar board = {board}/>
-      <BoardContent board = {board}/>
+      <BoardBar board={board} />
+      <BoardContent board={board} />
     </Container>
   )
 }

@@ -4,8 +4,10 @@ import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
 import { useEffect, useState } from 'react'
 import { fetchBoardDetailAPI } from '~/apis'
+import { mockData } from '~/apis/mock-data'
 
 function Board() {
+  // eslint-disable-next-line no-unused-vars
   const [board, setBoard] = useState(null)
 
   useEffect(() => {
@@ -23,8 +25,8 @@ function Board() {
       sx={{ height: '100vh', backgroundColor: 'primary.main' }}
     >
       <AppBar />
-      <BoardBar board={board} />
-      <BoardContent board={board} />
+      <BoardBar board={mockData.board} />
+      <BoardContent board={mockData.board} />
     </Container>
   )
 }

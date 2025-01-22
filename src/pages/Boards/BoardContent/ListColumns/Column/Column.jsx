@@ -222,6 +222,7 @@ function Column({ column }) {
                 size='small'
                 variant='outlined'
                 autoFocus
+                data-no-dnd='true'
                 value={newCardTitle}
                 onChange={(e) => setNewCardTitle(e.target.value)}
                 sx={{
@@ -254,13 +255,14 @@ function Column({ column }) {
                   variant='contained'
                   color='success'
                   size='small'
+                  data-no-dnd='true'
                   sx={{
                     boxShadow: 'none',
                     border: '0.5px solid',
                     borderColor: (theme) => theme.palette.success.main,
                     '&:hover': {
                       bgcolor: (theme) => theme.palette.success.main
-                    // eslint-disable-next-line comma-dangle
+                      // eslint-disable-next-line comma-dangle
                     },
                   }}
                 >

@@ -11,23 +11,35 @@ import {
   horizontalListSortingStrategy
 } from '@dnd-kit/sortable'
 
-function ListColumns({ columns }) {
+function ListColumns({ columns, createNewColumn, createNewCard }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const toggleNewColumnForm = () => setOpenNewColumnForm(!openNewColumnForm)
 
   const [newColumnTitle, setNewColumnTitle] = useState('')
-  const addNewColumn = () => {
+  const addNewColumn = async () => {
     if (!newColumnTitle) {
       toast.error('Please enter Column Title!!!')
       return
     }
-    // console.log('new column title:', newColumnTitle)
+    // Tao du lieu column de goi API
+    const newColumnData = {
+      title: newColumnTitle
+    }
     // goi API o day
 
+    /**
+     * Goi len props function createNewColumn nam o component cha cao nhat (boards/_id.jsx)
+     * Ve sau o hoc pham MERN Stack se hoc ve Redux de quan ly state toan bo ung dung
+     * va luc nay chung ta co the goi luon API o day la xong thay vi phai lan luot goi nguoc len nhung
+     * component cha phia tren 
+     * voi viec su dung redux nhu vay thi code se clean va chuan chinh hon rat nhieu
+     */
+    await createNewColumn(newColumnData)
     // dong trang thai them column moi & Clear input
     toggleNewColumnForm()
     setNewColumnTitle('')
   }
+
 
   // SortableContext yêu cầu items là một mảng dạng ['id_1', 'id_2', ...] chứ không phải là mảng object [{_id: 'id_1', ...}, {_id: 'id_2', ...}, ...]
   // Nên cần chuyển đổi từ mảng object sang mảng id
@@ -50,7 +62,7 @@ function ListColumns({ columns }) {
         }}
       >
         {columns?.map((column) => (
-          <Column key={column._id} column={column} />
+          <Column key={column._id} column={column} createNewCard={createNewCard} />
         ))}
 
         {/* Box add new column */}

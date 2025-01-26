@@ -33,7 +33,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 
-function BoardContent({ board }) {
+function BoardContent({ board, createNewColumn, createNewCard }) {
   // https://docs.dndkit.com/api-documentation/sensors#usesensor
   // Dung duoc nhung con bug khi keo tren mobile
   // const pointerSensor = useSensor(PointerSensor, {
@@ -426,7 +426,7 @@ function BoardContent({ board }) {
           p: '10px 0',
         }}
       >
-        <ListColumns columns={orderedColumns} />
+        <ListColumns columns={orderedColumns} createNewColumn={createNewColumn} createNewCard={createNewCard}/>
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}
           {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (

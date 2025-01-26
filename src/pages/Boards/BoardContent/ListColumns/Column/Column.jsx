@@ -24,7 +24,7 @@ import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function Column({ column }) {
+function Column({ column, createNewCard }) {
   // Drag and Drop Column
   const {
     attributes,
@@ -32,10 +32,10 @@ function Column({ column }) {
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({
     id: column._id,
-    data: { ...column }
+    data: { ...column },
   })
 
   const dndKitColumnStyles = {
@@ -48,7 +48,7 @@ function Column({ column }) {
     // ở một khu vực giữa rất khó chịu. Lưu ý lúc này phải kết hợp {...listeners} nằm ở Box
     // chứ không phải ở div cha của Box để không gây ra lỗi
     height: '100%',
-    opacity: isDragging ? 0.5 : undefined
+    opacity: isDragging ? 0.5 : undefined,
   }
 
   // Dropdown Menu
@@ -68,13 +68,27 @@ function Column({ column }) {
   const toggleNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
 
   const [newCardTitle, setNewCardTitle] = useState('')
-  const addNewCard = () => {
+  const addNewCard = async () => {
     if (!newCardTitle) {
       toast.error('Please enter Card Title!!!', { position: 'bottom-right' })
       return
     }
     // console.log('new Card title:', newCardTitle)
+
+    // Tao du lieu column de goi API
+    const newCardData = {
+      title: newCardTitle,
+      columnId: column._id,
+    }
     // goi API o day
+    /**
+     * Goi len props function createNewColumn nam o component cha cao nhat (boards/_id.jsx)
+     * Ve sau o hoc pham MERN Stack se hoc ve Redux de quan ly state toan bo ung dung
+     * va luc nay chung ta co the goi luon API o day la xong thay vi phai lan luot goi nguoc len nhung
+     * component cha phia tren 
+     * voi viec su dung redux nhu vay thi code se clean va chuan chinh hon rat nhieu
+     */
+    await createNewCard(newCardData)
 
     // dong trang thai them Card moi & Clear input
     toggleNewCardForm()
@@ -95,7 +109,7 @@ function Column({ column }) {
           borderRadius: '8px',
           height: 'fit-content',
           maxHeight: (theme) =>
-            `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
+            `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`,
         }}
       >
         {/* Column Header */}
@@ -105,7 +119,7 @@ function Column({ column }) {
             p: 2,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
           }}
         >
           <Typography
@@ -113,7 +127,7 @@ function Column({ column }) {
             sx={{
               fontSize: '1rem',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             {column?.title}
@@ -123,7 +137,7 @@ function Column({ column }) {
               <ExpandMoreIcon
                 sx={{
                   color: 'text.primary',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
                 id='basic-column-dropdown'
                 aria-controls={open ? 'basic-menu-column-dropdown' : undefined}
@@ -138,7 +152,7 @@ function Column({ column }) {
               open={open}
               onClose={handleClose}
               MenuListProps={{
-                'aria-labelledby': 'basic-column-dropdown'
+                'aria-labelledby': 'basic-column-dropdown',
               }}
             >
               <MenuItem>
@@ -189,7 +203,7 @@ function Column({ column }) {
         <Box
           sx={{
             height: (theme) => theme.trello.columnFooterHeight,
-            p: 2
+            p: 2,
           }}
         >
           {!openNewCardForm ? (
@@ -198,7 +212,7 @@ function Column({ column }) {
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
               }}
             >
               <Button startIcon={<AddCardIcon />} onClick={toggleNewCardForm}>
@@ -214,7 +228,7 @@ function Column({ column }) {
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 1,
               }}
             >
               <TextField
@@ -231,23 +245,23 @@ function Column({ column }) {
                   '& input': {
                     color: (theme) => theme.palette.primary.main,
                     bgcolor: (theme) =>
-                      theme.palette.mode === 'dark' ? '#333643' : 'white'
+                      theme.palette.mode === 'dark' ? '#333643' : 'white',
                   },
                   '& label.Mui-focused': {
-                    color: (theme) => theme.palette.primary.main
+                    color: (theme) => theme.palette.primary.main,
                   },
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': {
-                      borderColor: (theme) => theme.palette.primary.main
+                      borderColor: (theme) => theme.palette.primary.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: (theme) => theme.palette.primary.main
+                      borderColor: (theme) => theme.palette.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: (theme) => theme.palette.primary.main
+                      borderColor: (theme) => theme.palette.primary.main,
                     },
-                    '& .MuiOutlinedInput-input': { borderRadius: 1 }
-                  }
+                    '& .MuiOutlinedInput-input': { borderRadius: 1 },
+                  },
                 }}
               />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -262,7 +276,7 @@ function Column({ column }) {
                     border: '0.5px solid',
                     borderColor: (theme) => theme.palette.success.main,
                     '&:hover': {
-                      bgcolor: (theme) => theme.palette.success.main
+                      bgcolor: (theme) => theme.palette.success.main,
                       // eslint-disable-next-line comma-dangle
                     },
                   }}
@@ -273,7 +287,7 @@ function Column({ column }) {
                   fontSize='small'
                   sx={{
                     color: (theme) => theme.palette.warning.light,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                   onClick={toggleNewCardForm}
                 />

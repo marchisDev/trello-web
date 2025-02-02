@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react'
 import {
   fetchBoardDetailAPI,
   createNewColumnAPI,
-  createNewCardAPI
+  createNewCardAPI,
+  updateBoardDetailAPI
 } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
@@ -80,6 +81,21 @@ function Board() {
     setBoard(newBoard)
   }
 
+  // function nay co nhiem vu goi API va xu li sau khi keo tha column xong xuoi
+  const moveColumns = async (dndOrderedColumns) => {
+    const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
+
+    const newBoard = { ...board }
+    newBoard.columns = dndOrderedColumns
+    newBoard.columnOrderIds = dndOrderedColumnsIds
+    setBoard(newBoard)
+
+    // call API de update lai thu tu column
+    await updateBoardDetailAPI(newBoard._id, {
+      columnOrderIds: newBoard.columnOrderIds
+    })
+  }
+
   return (
     <Container
       disableGutters
@@ -92,6 +108,7 @@ function Board() {
         board={board}
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
+        moveColumns={moveColumns}
       />
     </Container>
   )

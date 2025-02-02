@@ -33,7 +33,7 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 
-function BoardContent({ board, createNewColumn, createNewCard }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
   // https://docs.dndkit.com/api-documentation/sensors#usesensor
   // Dung duoc nhung con bug khi keo tren mobile
   // const pointerSensor = useSensor(PointerSensor, {
@@ -329,9 +329,11 @@ function BoardContent({ board, createNewColumn, createNewCard }) {
           oldColumnIndex,
           newColumnIndex
         )
-        // Sau dùng để sử lí cập nhật lại vị trí của column trong database
-        // const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
 
+        // goi len props function moveColumns nam o component cha cao nhat de xu li (boards/_id.jsx)
+        moveColumns(dndOrderedColumns)
+
+        // Van goi update State o day de trang delay hoac flickering giao dien keo tha can phai cho goi API
         // Cập nhật lại state columns ban đầu sau khi kéo thả
         setOrderedColumns(dndOrderedColumns)
       }

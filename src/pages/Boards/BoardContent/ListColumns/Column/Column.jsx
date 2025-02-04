@@ -20,7 +20,6 @@ import DragHandleIcon from '@mui/icons-material/DragHandle'
 import ListCards from './ListCards/ListCards'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
-import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -62,13 +61,13 @@ function Column({ column, createNewCard }) {
   }
 
   // Sort Cards
-  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  const orderedCards = column.cards
 
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
   const toggleNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
 
   const [newCardTitle, setNewCardTitle] = useState('')
-  const addNewCard = async () => {
+  const addNewCard = () => {
     if (!newCardTitle) {
       toast.error('Please enter Card Title!!!', { position: 'bottom-right' })
       return
@@ -88,7 +87,7 @@ function Column({ column, createNewCard }) {
      * component cha phia tren 
      * voi viec su dung redux nhu vay thi code se clean va chuan chinh hon rat nhieu
      */
-    await createNewCard(newCardData)
+    createNewCard(newCardData)
 
     // dong trang thai them Card moi & Clear input
     toggleNewCardForm()

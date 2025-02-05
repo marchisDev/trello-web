@@ -22,8 +22,9 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useConfirm } from 'material-ui-confirm'
 
-function Column({ column, createNewCard }) {
+function Column({ column, createNewCard, deleteColumnDetails }) {
   // Drag and Drop Column
   const {
     attributes,
@@ -84,7 +85,7 @@ function Column({ column, createNewCard }) {
      * Goi len props function createNewColumn nam o component cha cao nhat (boards/_id.jsx)
      * Ve sau o hoc pham MERN Stack se hoc ve Redux de quan ly state toan bo ung dung
      * va luc nay chung ta co the goi luon API o day la xong thay vi phai lan luot goi nguoc len nhung
-     * component cha phia tren 
+     * component cha phia tren
      * voi viec su dung redux nhu vay thi code se clean va chuan chinh hon rat nhieu
      */
     createNewCard(newCardData)
@@ -92,6 +93,36 @@ function Column({ column, createNewCard }) {
     // dong trang thai them Card moi & Clear input
     toggleNewCardForm()
     setNewCardTitle('')
+  }
+
+  // Xu li xoa 1 column va card ben trong no
+  const confirmDeleteColumn = useConfirm()
+
+  const handleDeleteColumn = () => {
+    confirmDeleteColumn({
+      title: 'Delete Column?',
+      description:
+        'This action will delete all cards in this Column. Are you sure?',
+      confirmationText: 'Delete',
+      cancellationText: 'Cancel',
+      // allowClose: false,
+      // dialogProps: { maxWidth: 'xs' },
+      // confirmationButtonProps: { color: 'error', variant: 'outlined' },
+      // cancellationButtonProps: { color: 'inherit' },
+      // description: 'phai nhap chu DELETE de xac nhan xoa',
+      // confirmationKeyword: 'DELETE',
+    })
+      .then(() => {
+        /**
+         * Goi len props function deleteColumnDetails nam o component cha cao nhat (boards/_id.jsx)
+         * Ve sau o hoc pham MERN Stack se hoc ve Redux de quan ly state toan bo ung dung
+         * va luc nay chung ta co the goi luon API o day la xong thay vi phai lan luot goi nguoc len nhung
+         * component cha phia tren
+         * voi viec su dung redux nhu vay thi code se clean va chuan chinh hon rat nhieu
+         */
+        deleteColumnDetails(column._id)
+      })
+      .catch(() => {})
   }
 
   return (
@@ -150,13 +181,24 @@ function Column({ column, createNewCard }) {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
+              onClick={handleClose}
               MenuListProps={{
                 'aria-labelledby': 'basic-column-dropdown',
               }}
             >
-              <MenuItem>
+              <MenuItem
+                onClick={toggleNewCardForm}
+                sx={{
+                  // & .delete-forever-icon': css vào thẻ con của MenuItem
+                  // &.delete-forever-icon': css vào MenuItem khi có class delete-forever-icon
+                  '&:hover': {
+                    color: 'success.light',
+                    '& .add-card-icon': { color: 'success.light' },
+                  },
+                }}
+              >
                 <ListItemIcon>
-                  <AddCardIcon fontSize='small' />
+                  <AddCardIcon className='add-card-icon' fontSize='small' />
                 </ListItemIcon>
                 <ListItemText>Add new card</ListItemText>
               </MenuItem>
@@ -179,11 +221,24 @@ function Column({ column, createNewCard }) {
                 <ListItemText>Paste</ListItemText>
               </MenuItem>
               <Divider />
-              <MenuItem>
+              <MenuItem
+                onClick={handleDeleteColumn}
+                sx={{
+                  // & .delete-forever-icon': css vào thẻ con của MenuItem
+                  // &.delete-forever-icon': css vào MenuItem khi có class delete-forever-icon
+                  '&:hover': {
+                    color: 'warning.dark',
+                    '& .delete-forever-icon': { color: 'warning.dark' },
+                  },
+                }}
+              >
                 <ListItemIcon>
-                  <DeleteForeverIcon fontSize='small' />
+                  <DeleteForeverIcon
+                    className='delete-forever-icon'
+                    fontSize='small'
+                  />
                 </ListItemIcon>
-                <ListItemText>Remove this column</ListItemText>
+                <ListItemText>Delete this column</ListItemText>
               </MenuItem>
               <MenuItem>
                 <ListItemIcon>

@@ -27,7 +27,11 @@ export const createNewColumnAPI = async (newColumnData) => {
 
 export const updateColumnDetailAPI = async (columnId, updateData) => {
   const response = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData)
-  //   axios se tra ket qua ve qua property cua no la data
+  return response.data
+}
+
+export const deleteColumnDetailAPI = async (columnId) => {
+  const response = await axios.delete(`${API_ROOT}/v1/columns/${columnId}`)
   return response.data
 }
 

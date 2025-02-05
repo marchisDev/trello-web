@@ -92,14 +92,13 @@ function Board() {
       (column) => column._id === createdCard.columnId
     )
     if (columnToUpdate) {
-      if (columnToUpdate.card.some(card => card.FE_PlaceholderCard)) {
+      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
         columnToUpdate.cards = [createdCard]
         columnToUpdate.cardOrderIds = [createdCard._id]
       } else {
         columnToUpdate.cards.push(createdCard)
         columnToUpdate.cardOrderIds.push(createdCard._id)
       }
-
     }
     setBoard(newBoard)
   }

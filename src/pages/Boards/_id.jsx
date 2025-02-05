@@ -12,11 +12,14 @@ import {
   createNewCardAPI,
   updateBoardDetailAPI,
   updateColumnDetailAPI,
-  moveCardToDifferentColumnAPI
+  moveCardToDifferentColumnAPI,
+  deleteColumnDetailAPI
 } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
 import { mapOrder } from '~/utils/sorts'
+import { toast } from 'react-toastify'
+
 
 // import { mockData } from '~/apis/mock-data'
 
@@ -104,7 +107,7 @@ function Board() {
   // function nay co nhiem vu goi API va xu li sau khi keo tha column xong xuoi
   const moveColumns = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
-
+    // Update cho chuan du lieu State Board
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
@@ -135,6 +138,20 @@ function Board() {
     // Goi API update Column
     updateColumnDetailAPI(columnId, {
       cardOrderIds: dndOrderedCardIds
+    })
+  }
+
+  // Xu li xoa 1 column va card ben trong no
+  const deleteColumnDetails = (columnId) => { 
+    console.log('columnId: ', columnId)
+    // Update cho chuan du lieu State Board
+    const newBoard = { ...board }
+    newBoard.columns = newBoard.columns.filter((column) => column._id !== columnId)
+    newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId)
+    setBoard(newBoard)
+    // Goi API xoa Column
+    deleteColumnDetailAPI(columnId).then(res => {
+      toast.success(res?.deleteResult)
     })
   }
 
@@ -188,6 +205,7 @@ function Board() {
         moveColumns={moveColumns}
         moveCardInTheSameColumn={moveCardInTheSameColumn}
         moveCardToDifferentColumn={moveCardToDifferentColumn}
+        deleteColumnDetails={deleteColumnDetails}
       />
     </Container>
   )

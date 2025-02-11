@@ -20,6 +20,7 @@ import {
   selectCurrentActiveBoard
 } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
 
 // import { mockData } from '~/apis/mock-data'
 
@@ -30,12 +31,12 @@ function Board() {
   // const [board, setBoard] = useState(null)
   const board = useSelector(selectCurrentActiveBoard)
 
+  const { boardId } = useParams()
+
   useEffect(() => {
-    // tam thoi fix cung, flow chuan chinh ve sau se dung react-router-dom de lay id tu URL ve
-    const boardId = '678f798109598cdbc87c97d9'
     // call api de lay data
     dispatch(fetchBoardDetailAPI(boardId))
-  }, [dispatch])
+  }, [dispatch, boardId])
 
 
   // function nay co nhiem vu goi API va xu li sau khi keo tha column xong xuoi

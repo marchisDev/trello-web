@@ -31,12 +31,9 @@ import Card from './ListColumns/Column/ListCards/Card/Card'
 
 function BoardContent({
   board,
-  createNewColumn,
-  createNewCard,
   moveColumns,
   moveCardInTheSameColumn,
-  moveCardToDifferentColumn,
-  deleteColumnDetails
+  moveCardToDifferentColumn
 }) {
   // https://docs.dndkit.com/api-documentation/sensors#usesensor
   // Dung duoc nhung con bug khi keo tren mobile
@@ -463,9 +460,6 @@ function BoardContent({
       >
         <ListColumns
           columns={orderedColumns}
-          createNewColumn={createNewColumn}
-          createNewCard={createNewCard}
-          deleteColumnDetails={deleteColumnDetails}
         />
         <DragOverlay dropAnimation={customDropAnimation}>
           {!activeDragItemType && null}

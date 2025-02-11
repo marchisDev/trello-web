@@ -7,11 +7,11 @@ import { API_ROOT } from '~/utils/constants'
 // va response de xu ly logic ma chung ta muon)
 
 // Board
-export const fetchBoardDetailAPI = async (boardId) => {
-  const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`)
-  //   axios se tra ket qua ve qua property cua no la data
-  return response.data
-}
+// export const fetchBoardDetailAPI = async (boardId) => {
+//   const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`)
+//   //   axios se tra ket qua ve qua property cua no la data
+//   return response.data
+// }
 
 export const updateBoardDetailAPI = async (boardId, updateData) => {
   const response = await axios.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)

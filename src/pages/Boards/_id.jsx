@@ -5,112 +5,53 @@ import BoardContent from './BoardContent/BoardContent'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
-  fetchBoardDetailAPI,
-  createNewColumnAPI,
-  createNewCardAPI,
   updateBoardDetailAPI,
   updateColumnDetailAPI,
   moveCardToDifferentColumnAPI,
   deleteColumnDetailAPI
 } from '~/apis'
-import { generatePlaceholderCard } from '~/utils/formatters'
-import { isEmpty } from 'lodash'
-import { mapOrder } from '~/utils/sorts'
+import { cloneDeep } from 'lodash'
 import { toast } from 'react-toastify'
-
+import {
+  fetchBoardDetailAPI,
+  updateCurrentActiveBoard,
+  selectCurrentActiveBoard
+} from '~/redux/activeBoard/activeBoardSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 // import { mockData } from '~/apis/mock-data'
 
 function Board() {
+  const dispatch = useDispatch()
   // eslint-disable-next-line no-unused-vars
-  const [board, setBoard] = useState(null)
+  // khong dung toi useState vi chung ta se dung Redux de quan ly state cua Board
+  // const [board, setBoard] = useState(null)
+  const board = useSelector(selectCurrentActiveBoard)
 
   useEffect(() => {
     // tam thoi fix cung, flow chuan chinh ve sau se dung react-router-dom de lay id tu URL ve
     const boardId = '678f798109598cdbc87c97d9'
     // call api de lay data
-    fetchBoardDetailAPI(boardId).then((board) => {
-      // Sap xep thu tu cac column o day truowc khi dua du lieu xuong duoi cac component con
-      board.columns = mapOrder(board?.columns, board?.columnOrderIds, '_id')
+    dispatch(fetchBoardDetailAPI(boardId))
+  }, [dispatch])
 
-      board.columns.forEach((column) => {
-        //khi F5 trang web can xu li van de keo tha mot column rong
-        if (isEmpty(column.cards)) {
-          column.cards = [generatePlaceholderCard(column)]
-          column.cardOrderIds = [generatePlaceholderCard(column)._id]
-        } else {
-          // Sap xep thu tu cac column o day truowc khi dua du lieu xuong duoi cac component con (vic71)
-          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
-        }
-      })
-      // console.log('full board: ', board)
-      // console.log('board: ', board)
-      setBoard(board)
-    })
-  }, [setBoard])
-
-  // function nay co nhiem vu goi API tao moi Column va lam moi lai du lieu State Board
-  const createNewColumn = async (newColumnData) => {
-    const createdColumn = await createNewColumnAPI({
-      ...newColumnData,
-      boardId: board._id
-    })
-
-    // khi tao column moi se chua co card, can xu li van de keo tha vao mot column rong (vid37)
-    createdColumn.cards = [generatePlaceholderCard(createdColumn)]
-    createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
-
-    // cap nhat lai state board
-    // Phia FE chung ta phia tu lam dung lai state databoard (thay vi goi lai api
-    // fetchBoardDetailAPI(boardId) de lay lai du lieu moi nhat)
-    // Luu y: cach lam nay phu thuoc vao tuy lua chon va dac thu cua du an, cp noi thi BE se ho tro tra ve
-    // luon toan bo Board du day co la api tao COlumn hay Card di chang nua => Fe nhan hon
-    const newBoard = { ...board }
-    newBoard.columns.push(createdColumn)
-    newBoard.columnOrderIds.push(createdColumn._id)
-    setBoard(newBoard)
-  }
-
-  // function nay co nhiem vu goi API tao moi Card va lam moi lai du lieu State Board
-  const createNewCard = async (newCardData) => {
-    const createdCard = await createNewCardAPI({
-      ...newCardData,
-      boardId: board._id
-    })
-
-    // console.log('createdCard: ', createdCard)
-
-    // cap nhat lai state board
-    // Phia FE chung ta phia tu lam dung lai state databoard (thay vi goi lai api
-    // fetchBoardDetailAPI(boardId) de lay lai du lieu moi nhat)
-    // Luu y: cach lam nay phu thuoc vao tuy lua chon va dac thu cua du an, cp noi thi BE se ho tro tra ve
-    // luon toan bo Board du day co la api tao COlumn hay Card di chang nua => Fe nhan hon
-    const newBoard = { ...board }
-    const columnToUpdate = newBoard.columns.find(
-      (column) => column._id === createdCard.columnId
-    )
-    if (columnToUpdate) {
-      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
-        columnToUpdate.cards = [createdCard]
-        columnToUpdate.cardOrderIds = [createdCard._id]
-      } else {
-        columnToUpdate.cards.push(createdCard)
-        columnToUpdate.cardOrderIds.push(createdCard._id)
-      }
-    }
-    setBoard(newBoard)
-  }
 
   // function nay co nhiem vu goi API va xu li sau khi keo tha column xong xuoi
   const moveColumns = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
     // Update cho chuan du lieu State Board
+    /**
+     * TH dung Spread Operator nay thi khong sao boi vi o day chung ta khong dung push nhu o tren lam thay doi
+     * truc tiep mang ma chi dang gan lai gia tri cho columns va columnOrderIds bang 2 mang moi, nen khong co van de gi
+     * tuong tu nhu cach lam concat() o tren createNewColumn
+     */
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
-    setBoard(newBoard)
+    // setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     // call API de update lai thu tu column
     updateBoardDetailAPI(newBoard._id, {
@@ -125,7 +66,8 @@ function Board() {
     columnId
   ) => {
     // Update cho chuan du lieu State Board
-    const newBoard = { ...board }
+    // Tuong tu ham createNewColumn, chung ta se dung toi Deep Copy/Clone de tranh loi object is not extensible
+    const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find(
       (column) => column._id === columnId
     )
@@ -133,7 +75,8 @@ function Board() {
       columnToUpdate.cards = dndOrderedCards
       columnToUpdate.cardOrderIds = dndOrderedCardIds
     }
-    setBoard(newBoard)
+    // setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
     // Goi API update Column
     updateColumnDetailAPI(columnId, {
       cardOrderIds: dndOrderedCardIds
@@ -141,15 +84,20 @@ function Board() {
   }
 
   // Xu li xoa 1 column va card ben trong no
-  const deleteColumnDetails = (columnId) => { 
-    console.log('columnId: ', columnId)
+  const deleteColumnDetails = (columnId) => {
     // Update cho chuan du lieu State Board
+    // Tuong tu doan xu li cua ham moveColumns nen khong anh huong gi toi Redux Toolkit Imutibility
     const newBoard = { ...board }
-    newBoard.columns = newBoard.columns.filter((column) => column._id !== columnId)
-    newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== columnId)
-    setBoard(newBoard)
+    newBoard.columns = newBoard.columns.filter(
+      (column) => column._id !== columnId
+    )
+    newBoard.columnOrderIds = newBoard.columnOrderIds.filter(
+      (_id) => _id !== columnId
+    )
+    // setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
     // Goi API xoa Column
-    deleteColumnDetailAPI(columnId).then(res => {
+    deleteColumnDetailAPI(columnId).then((res) => {
       toast.success(res?.deleteResult)
     })
   }
@@ -158,16 +106,25 @@ function Board() {
   // B1: Cap nhat lai mang cardOrderIds cua column ban dau chua no (xoa _id cua card khoi mang)
   // B2: Cap nhat lai mang cardOrderIds cua column chua no (them _id cua card vao cuoi mang)
   // B3: Cap nhat lai truong ColumnId cua card da keo
-  const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
+  const moveCardToDifferentColumn = (
+    currentCardId,
+    prevColumnId,
+    nextColumnId,
+    dndOrderedColumns
+  ) => {
     // Update cho chuan du lieu State Board
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
+    // Tuong tu doan xu li cua ham moveColumns nen khong anh huong gi toi Redux Toolkit Imutibility
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
-    setBoard(newBoard)
+    // setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     // Goi API update Column
-    let prevCardOrderIds = dndOrderedColumns.find((c) => c._id === prevColumnId)?.cardOrderIds
+    let prevCardOrderIds = dndOrderedColumns.find(
+      (c) => c._id === prevColumnId
+    )?.cardOrderIds
     if (prevCardOrderIds[0].includes('placeholder-card')) {
       prevCardOrderIds = []
     }
@@ -176,13 +133,23 @@ function Board() {
       prevColumnId,
       prevCardOrderIds,
       nextColumnId,
-      nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)?.cardOrderIds
+      nextCardOrderIds: dndOrderedColumns.find((c) => c._id === nextColumnId)
+        ?.cardOrderIds
     })
   }
 
   if (!board) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, width: '100vw', height: '100vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 2,
+          width: '100vw',
+          height: '100vh'
+        }}
+      >
         <CircularProgress />
         <Typography>Loading Board...</Typography>
       </Box>
@@ -199,12 +166,14 @@ function Board() {
       <BoardBar board={board} />
       <BoardContent
         board={board}
-        createNewColumn={createNewColumn}
-        createNewCard={createNewCard}
+
+        // createNewColumn={createNewColumn}
+        // createNewCard={createNewCard}
+        deleteColumnDetails={deleteColumnDetails}
+
         moveColumns={moveColumns}
         moveCardInTheSameColumn={moveCardInTheSameColumn}
         moveCardToDifferentColumn={moveCardToDifferentColumn}
-        deleteColumnDetails={deleteColumnDetails}
       />
     </Container>
   )

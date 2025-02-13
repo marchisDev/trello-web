@@ -1,4 +1,4 @@
-import axios from 'axios'
+import authorizeAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
 // chung ta se khong try catch o day vi se gay ra code khong clean
@@ -14,35 +14,35 @@ import { API_ROOT } from '~/utils/constants'
 // }
 
 export const updateBoardDetailAPI = async (boardId, updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)
   //   axios se tra ket qua ve qua property cua no la data
   return response.data
 }
 
 // Column
 export const createNewColumnAPI = async (newColumnData) => {
-  const response = await axios.post(`${API_ROOT}/v1/columns`, newColumnData)
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/columns`, newColumnData)
   return response.data
 }
 
 export const updateColumnDetailAPI = async (columnId, updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData)
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/columns/${columnId}`, updateData)
   return response.data
 }
 
 export const deleteColumnDetailAPI = async (columnId) => {
-  const response = await axios.delete(`${API_ROOT}/v1/columns/${columnId}`)
+  const response = await authorizeAxiosInstance.delete(`${API_ROOT}/v1/columns/${columnId}`)
   return response.data
 }
 
 export const moveCardToDifferentColumnAPI = async (updateData) => {
-  const response = await axios.put(`${API_ROOT}/v1/boards/supports/moving_card`, updateData)
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/boards/supports/moving_card`, updateData)
   //   axios se tra ket qua ve qua property cua no la data
   return response.data
 }
 
 // Card
 export const createNewCardAPI = async (newCardData) => {
-  const response = await axios.post(`${API_ROOT}/v1/cards`, newCardData)
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/cards`, newCardData)
   return response.data
 }

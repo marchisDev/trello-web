@@ -18,10 +18,15 @@ import {
   PASSWORD_RULE_MESSAGE,
   EMAIL_RULE_MESSAGE
 } from '~/utils/validators'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { loginUserAPI } from '~/redux/user/userSlice'
+import { toast } from 'react-toastify'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 
 function LoginForm() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -32,8 +37,18 @@ function LoginForm() {
   const verifiedEmail = searchParams.get('verifiedEmail')
 
   const submitLogIn = (data) => {
-    // eslint-disable-next-line no-console
-    console.log('data', data)
+    const { email, password } = data
+    toast
+      .promise(dispatch(loginUserAPI({ email, password })), {
+        pending: 'Logging in...'
+      })
+      .then((res) => {
+        // console.log(res)
+        // Doan nay phai kiem tra khong co loi(login thanh cong) thi moi chuyen huong ve route /
+        if (!res.error) {
+          navigate('/')
+        }
+      })
   }
   return (
     <form onSubmit={handleSubmit(submitLogIn)}>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Avatar from '@mui/material/Avatar'
@@ -20,6 +20,8 @@ import {
 } from '~/utils/validators'
 
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import { registerUserAPI } from '~/apis'
+import { toast } from 'react-toastify'
 
 function RegisterForm() {
   const {
@@ -28,10 +30,17 @@ function RegisterForm() {
     formState: { errors },
     watch
   } = useForm()
+  const navigate = useNavigate()
 
   const submitRegister = (data) => {
-    // eslint-disable-next-line no-console
-    console.log('submitRegister', data)
+    const { email, password } = data
+    toast
+      .promise(registerUserAPI({ email, password }), {
+        pending: 'Registration is in progress...'
+      })
+      .then((user) => {
+        navigate(`/login?registeredEmail=${user.email}`)
+      })
   }
 
   return (
@@ -117,7 +126,10 @@ function RegisterForm() {
                   }
                 })}
               />
-              <FieldErrorAlert errors={errors} fieldName='password_confirmation' />
+              <FieldErrorAlert
+                errors={errors}
+                fieldName='password_confirmation'
+              />
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>

@@ -17,25 +17,33 @@ import { ConfirmProvider } from 'material-ui-confirm'
 // config react-router-dom with BrowserRouter
 import { BrowserRouter } from 'react-router-dom'
 
+// Cau hinh Redux Persist
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistStore } from 'redux-persist'
+
+const persistor = persistStore(store)
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter basename='/'>
     <Provider store={store}>
-      <CssVarsProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <ConfirmProvider
-          defaultOptions={{
-            allowClose: false,
-            dialogProps: { maxWidth: 'xs' },
-            confirmationButtonProps: { color: 'error', variant: 'outlined' },
-            cancellationButtonProps: { color: 'inherit' },
-            buttonOrder: ['confirm', 'cancel']
-          }}
-        >
-          <CssBaseline />
-          <App />
-          <ToastContainer position='bottom-left' theme='colored' />
-        </ConfirmProvider>
-      </CssVarsProvider>
+      <PersistGate persistor={persistor}>
+        <CssVarsProvider theme={theme}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <ConfirmProvider
+            defaultOptions={{
+              allowClose: false,
+              dialogProps: { maxWidth: 'xs' },
+              confirmationButtonProps: { color: 'error', variant: 'outlined' },
+              cancellationButtonProps: { color: 'inherit' },
+              buttonOrder: ['confirm', 'cancel']
+            }}
+          >
+            <CssBaseline />
+            <App />
+            <ToastContainer position='bottom-left' theme='colored' />
+          </ConfirmProvider>
+        </CssVarsProvider>
+      </PersistGate>
     </Provider>
   </BrowserRouter>
 )

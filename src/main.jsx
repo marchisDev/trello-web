@@ -23,6 +23,10 @@ import { persistStore } from 'redux-persist'
 
 const persistor = persistStore(store)
 
+// Ki thuat Inject Store: la ki thuat khi can su dung bien redux store o cac file ngoai pham vi component
+import { injectStore } from '~/utils/authorizeAxios'
+injectStore(store)
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter basename='/'>
     <Provider store={store}>

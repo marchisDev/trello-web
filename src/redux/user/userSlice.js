@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify'
 import authorizeAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
@@ -19,6 +20,18 @@ export const loginUserAPI = createAsyncThunk(
   }
 )
 
+export const logoutUserAPI = createAsyncThunk(
+  'user/logoutUserAPI',
+  async (showSuccessMessage = true) => {
+    const response = await authorizeAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
+    if (showSuccessMessage) {
+      toast.success('Logout successfully!')
+    }
+    //   axios se tra ket qua ve qua property cua no la data
+    return response.data
+  }
+)
+
 // Khoi tao 1 slice trong kho luu tru redux
 export const userSlice = createSlice({
   name: 'user',
@@ -32,6 +45,12 @@ export const userSlice = createSlice({
       const user = action.payload
       //   Update lai du lieu cua currentUser
       state.currentUser = user
+    })
+
+    builder.addCase(logoutUserAPI.fulfilled, (state) => {
+      // API logout sau khi goi thanh cong thi se clear thong tin tai currentUser ve null tai day
+      // Ket hop voi ProtectedRoute de redirect ve trang login
+      state.currentUser = null
     })
   }
 })

@@ -52,7 +52,7 @@ function AccountTab() {
 
   const submitChangeGeneralInformation = (data) => {
     const { displayName } = data
-    console.log('displayName: ', displayName)
+    // console.log('displayName: ', displayName)
 
     // Nếu không có sự thay đổi gì về displayname thì không làm gì cả
     if (displayName === currentUser?.displayName) return
@@ -73,7 +73,7 @@ function AccountTab() {
 
   const uploadAvatar = (e) => {
     // Lấy file thông qua e.target?.files[0] và validate nó trước khi xử lý
-    console.log('e.target?.files[0]: ', e.target?.files[0])
+    // console.log('e.target?.files[0]: ', e.target?.files[0])
     const error = singleFileValidator(e.target?.files[0])
     if (error) {
       toast.error(error)
@@ -83,13 +83,28 @@ function AccountTab() {
     // Sử dụng FormData để xử lý dữ liệu liên quan tới file khi gọi API
     let reqData = new FormData()
     reqData.append('avatar', e.target?.files[0])
-    // Cách để log được dữ liệu thông qua FormData
-    console.log('reqData: ', reqData)
-    for (const value of reqData.values()) {
-      console.log('reqData Value: ', value)
-    }
+    // // Cách để log được dữ liệu thông qua FormData
+    // console.log('reqData: ', reqData)
+    // for (const value of reqData.values()) {
+    //   console.log('reqData Value: ', value)
+    // }
 
     // Gọi API...
+    toast
+      .promise(dispatch(updateUserAPI(reqData)), {
+        pending: 'Updating...'
+      })
+      .then((res) => {
+        // console.log(res)
+        // Doan nay phai kiem tra khong co loi(update thanh cong) thi thuc hien cac hanh dong can thiet
+        if (!res.error) {
+          toast.success('User updated successfully!')
+        }
+
+        // Luu y du co loi hay la khong thi cung phai clear file input, neu khong thi se khong
+        // the chon lai 1 file lien tiep duoc
+        e.target.value = ''
+      })
   }
 
   return (

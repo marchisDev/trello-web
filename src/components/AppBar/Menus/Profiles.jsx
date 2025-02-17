@@ -13,6 +13,7 @@ import Logout from '@mui/icons-material/Logout'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
 import { useConfirm } from 'material-ui-confirm'
+import { Link } from 'react-router-dom'
 
 function Profiles() {
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -32,7 +33,7 @@ function Profiles() {
     confirmLogout({
       title: 'Are you sure you want to logout?',
       confirmationText: 'Confirm',
-      cancellationText: 'Cancel'
+      cancellationText: 'Cancel',
     })
       .then(() => {
         // goi api logout
@@ -66,21 +67,23 @@ function Profiles() {
         onClose={handleClose}
         onClick={handleClose}
         MenuListProps={{
-          'aria-labelledby': 'basic-button-profiles'
+          'aria-labelledby': 'basic-button-profiles',
         }}
       >
-        <MenuItem
-          sx={{
-            '&:hover': { color: 'success.light' }
-          }}
-        >
-          <Avatar
-            sx={{ height: 20, width: 20, mr: 2 }}
-            alt='Avatar'
-            src={currentUser?.avatar}
-          />{' '}
-          Profile
-        </MenuItem>
+        <Link to='/settings/account' style={{ color: 'inherit' }}>
+          <MenuItem
+            sx={{
+              '&:hover': { color: 'success.light' },
+            }}
+          >
+            <Avatar
+              sx={{ height: 20, width: 20, mr: 2 }}
+              alt='Avatar'
+              src={currentUser?.avatar}
+            />{' '}
+            Profile
+          </MenuItem>
+        </Link>
         <Divider />
         <MenuItem>
           <ListItemIcon>
@@ -99,8 +102,8 @@ function Profiles() {
           sx={{
             '&:hover': {
               color: 'warning.dark',
-              '& .logout-icon': { color: 'warning.dark' }
-            }
+              '& .logout-icon': { color: 'warning.dark' },
+            },
           }}
         >
           <ListItemIcon>

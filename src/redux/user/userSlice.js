@@ -20,6 +20,15 @@ export const loginUserAPI = createAsyncThunk(
   }
 )
 
+export const updateUserAPI = createAsyncThunk(
+  'user/updateUserAPI',
+  async (data) => {
+    const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/users/update`, data)
+    //   axios se tra ket qua ve qua property cua no la data
+    return response.data
+  }
+)
+
 export const logoutUserAPI = createAsyncThunk(
   'user/logoutUserAPI',
   async (showSuccessMessage = true) => {
@@ -51,6 +60,11 @@ export const userSlice = createSlice({
       // API logout sau khi goi thanh cong thi se clear thong tin tai currentUser ve null tai day
       // Ket hop voi ProtectedRoute de redirect ve trang login
       state.currentUser = null
+    })
+
+    builder.addCase(updateUserAPI.fulfilled, (state, action) => {
+      const user = action.payload
+      state.currentUser = user
     })
   }
 })

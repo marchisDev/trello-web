@@ -6,7 +6,7 @@ import Auth from '~/pages/Auth/Auth'
 import AccountVerification from '~/pages/Auth/AccountVerification'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
-
+import Settings from '~/pages/Settings/Settings'
 /**
  * Giai phap Clean Code trong viec xac dinh cac route nao can dang nhap tai khoan xong thi moi cho truy cap
  * Su dung Outlet cua react-router-dom de chay vao cac child route cua no
@@ -38,6 +38,9 @@ function App() {
         {/*<Oultlet /> cua react-router-dom se chay vao cac child route trong nay  */}
         {/* Board Details */}
         <Route path='/boards/:boardId' element={<Board />} />
+        {/* User setting */}
+        <Route path='/settings/account' element={<Settings />} />
+        <Route path='/settings/security' element={<Settings />} />
       </Route>
       {/* Authentication */}
       <Route path='/login' element={<Auth />} />

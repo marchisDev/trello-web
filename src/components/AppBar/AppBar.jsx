@@ -37,11 +37,15 @@ function AppBar() {
         overflowX: 'auto',
         bgcolor: (theme) =>
           theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0',
-        '&::-webkit-scrollbar-track': { m: 2 },
+        '&::-webkit-scrollbar-track': { m: 2 }
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <AppsIcon sx={{ color: 'white' }} />
+        <Link to='/boards'>
+          <Tooltip title='Board list'>
+            <AppsIcon sx={{ color: 'white', verticalAlign: 'middle' }} />
+          </Tooltip>
+        </Link>
         <Link to='/'>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <SvgIcon
@@ -55,7 +59,7 @@ function AppBar() {
               sx={{
                 color: 'white',
                 fontSize: '1.2rem',
-                fontWeight: 'bold',
+                fontWeight: 'bold'
               }}
             >
               Trello
@@ -72,7 +76,7 @@ function AppBar() {
             sx={{
               color: 'white',
               border: 'none',
-              '&:hover': { border: 'none' },
+              '&:hover': { border: 'none' }
             }}
             startIcon={<LibraryAddIcon />}
           >
@@ -100,12 +104,12 @@ function AppBar() {
                   fontSize='small'
                   sx={{
                     color: searchValue ? 'white' : 'transparent',
-                    cursor: 'pointer',
+                    cursor: 'pointer'
                   }}
                   onClick={() => setSearchValue('')}
                 />
               </InputAdornment>
-            ),
+            )
           }}
           sx={{
             minWidth: '120px',
@@ -115,15 +119,15 @@ function AppBar() {
             '& label.Mui-focused': { color: 'white' },
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: 'white',
+                borderColor: 'white'
               },
               '&:hover fieldset': {
-                borderColor: 'white',
+                borderColor: 'white'
               },
               '&.Mui-focused fieldset': {
-                borderColor: 'white',
-              },
-            },
+                borderColor: 'white'
+              }
+            }
           }}
         />
         <ModeSelect />

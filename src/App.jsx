@@ -33,7 +33,7 @@ function App() {
       giua 2 TH co replace va khong co replace */}
       <Route
         path='/'
-        element={<Navigate to='/boards/678f798109598cdbc87c97d9' />}
+        element={<Navigate to='/boards' />}
       />
       {/* Protected Route: Hieu don gian trong du an cua chung ta la nhung route chi cho truy cap sau khi da login */}
       <Route element={<ProtectedRoute user={currentUser} />}>

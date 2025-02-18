@@ -111,3 +111,11 @@ export const createNewBoardAPI = async (data) => {
   toast.success('Board created successfully!')
   return response.data
 }
+
+export const updateCardDetailAPI = async (cardId, updateData) => {
+  const response = await authorizeAxiosInstance.put(
+    `${API_ROOT}/v1/cards/${cardId}`,
+    updateData
+  )
+  return response.data
+}

@@ -20,7 +20,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
-import { selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 // import { mockData } from '~/apis/mock-data'
 
 function Board() {
@@ -29,7 +28,7 @@ function Board() {
   // khong dung toi useState vi chung ta se dung Redux de quan ly state cua Board
   // const [board, setBoard] = useState(null)
   const board = useSelector(selectCurrentActiveBoard)
-  const activeCard = useSelector(selectCurrentActiveCard)
+
 
   const { boardId } = useParams()
 
@@ -149,10 +148,9 @@ function Board() {
       maxWidth='false'
       sx={{ height: '100vh', backgroundColor: 'primary.main' }}
     >
-      {/* Modal Active Card, check dong mo dua theo dieu kien co ton tai data activeCard luu trong
-      Redux hay khong thi moi render. Moi thoi diem chi ton tai 1 cai Modal Card trong Active */}
-      {activeCard && <ActiveCard />}
-      {/* <ActiveCard /> */}
+      {/* Modal Active Card, check dong mo dua theo theo State isShowModalActiveCard luu trong redux */}
+      {/* {activeCard && <ActiveCard />} */}
+      <ActiveCard />
       {/* cac thanh phan con lai cua board detail */}
       <AppBar />
       <BoardBar board={board} />

@@ -33,11 +33,13 @@ import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  clearCurrentActiveCard,
+  clearAndHideCurrentActiveCard,
   selectCurrentActiveCard,
-  updateCurrentActiveCard
+  updateCurrentActiveCard,
+  selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
 import { updateCardDetailAPI } from '~/apis/index'
+import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 import { styled } from '@mui/material/styles'
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -70,12 +72,13 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 function ActiveCard() {
   const dispatch = useDispatch()
   const activeCard = useSelector(selectCurrentActiveCard)
-  // khong dung bien state de dong mo modal nua vi chung ta se chec ben Boards/_id.jsx
+  const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
+  // khong dung bien state de dong mo modal nua vi chung ta se check theo ten bien isShowModalActiveCard trong redux
   // const [isOpen, setIsOpen] = useState(true)
   // const handleOpenModal = () => setIsOpen(true)
   const handleCloseModal = () => {
     // setIsOpen(false)
-    dispatch(clearCurrentActiveCard())
+    dispatch(clearAndHideCurrentActiveCard())
   }
 
   // Function goi API dung chung cho cac TH update title, cover, description, members, ...
@@ -85,13 +88,18 @@ function ActiveCard() {
     // B01: Cap nhat lai cai card dang active trong madal hien tai
     dispatch(updateCurrentActiveCard(updatedCard))
     // B02: Cap nhat lai ban ghi card trong cai activeBoard(nested data)
-
+    dispatch(updateCardInBoard(updatedCard))
     return updatedCard
   }
 
   const onUpdateCardTitle = (newTitle) => {
     // Gọi API...
     callApiUpdateCard({ title: newTitle.trim() })
+  }
+
+  const onUpdateCardDescription = (newDescription) => {
+    // Gọi API...
+    callApiUpdateCard({ description: newDescription })
   }
 
   const onUploadCardCover = (event) => {
@@ -105,12 +113,23 @@ function ActiveCard() {
     reqData.append('cardCover', event.target?.files[0])
 
     // Gọi API...
+    toast.promise(
+      callApiUpdateCard(reqData).finally(() => {
+        event.target.value = ''
+      }),
+      { pending: 'Updating...' }
+    )
+  }
+
+  // dung async await o day de component con CardActivitySection cho va neu thanh cong thi moi clear input comment
+  const onAddCardComment = async (commentToAdd) => {
+    await callApiUpdateCard({ commentToAdd })
   }
 
   return (
     <Modal
       disableScrollLock
-      open={true}
+      open={isShowModalActiveCard}
       onClose={handleCloseModal} // Sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
       sx={{ overflowY: 'auto' }}
     >
@@ -206,7 +225,10 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 03: Xử lý mô tả của Card */}
-              <CardDescriptionMdEditor />
+              <CardDescriptionMdEditor
+                cardDescriptionProp={activeCard?.description}
+                handleUpdateCardDescription={onUpdateCardDescription}
+              />
             </Box>
 
             <Box sx={{ mb: 3 }}>
@@ -221,7 +243,11 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 04: Xử lý các hành động, ví dụ comment vào Card */}
-              <CardActivitySection />
+              <CardActivitySection
+                cardComments={activeCard?.comments}
+                onAddCardComment={onAddCardComment}
+              />
+
             </Box>
           </Grid>
 

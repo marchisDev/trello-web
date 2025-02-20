@@ -17,8 +17,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   fetchInvitationsAPI,
   selectCurrentNotifications,
-  updateBoardInvitationAPI
+  updateBoardInvitationAPI,
+  addNotification
 } from '~/redux/notifications/notificationsSlice'
+import { socketIoInstance } from '~/main'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useNavigate } from 'react-router-dom'
+
 
 const BOARD_INVITATION_STATUS = {
   PENDING: 'PENDING',
@@ -27,14 +32,23 @@ const BOARD_INVITATION_STATUS = {
 }
 
 function Notifications() {
+  const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
   const handleClickNotificationIcon = (event) => {
     setAnchorEl(event.currentTarget)
+
+    // khi click vao phan icon thong bao thi set trang thai thong bao notification ve false
+    setNewNotifications(false)
   }
   const handleClose = () => {
     setAnchorEl(null)
   }
+  // Bien state kiem tra co thong bao moi hay khong
+  const [newNotifications, setNewNotifications] = useState(false)
+
+  // lay du lieu user hien tai tu redux
+  const currentUser = useSelector(selectCurrentUser)
 
   // lay du lieu notification tu redux
   const notifications = useSelector(selectCurrentNotifications)
@@ -43,14 +57,39 @@ function Notifications() {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(fetchInvitationsAPI())
-  }, [dispatch])
+
+    // tao 1 function xu ki khi nha duoc xu kien realtime
+    // https://socket.io/how-to/use-with-react
+    const onReceiveNewInvitation = (invitation) => {
+      // neu user dang dang nhap trong redux hien tai chinh la invitee trong ban ghi invitation
+      if (invitation.inviteeId === currentUser._id) {
+        // B1: them ban ghi invitaion moi nhan duoc vao trong redux store
+        dispatch(addNotification(invitation))
+        // B2: cap nhat trang thai co thong bao moi
+        setNewNotifications(true)
+      }
+    }
+
+    // lang nghe 1 su kien realtime co ten la BE_USER_INVITED_TO_BOARD tu phia server gui ve
+    socketIoInstance.on('BE_USER_INVITED_TO_BOARD', onReceiveNewInvitation)
+
+    // clean up event de ngan chan viec bi dang ki lap lai event
+    // https://socket.io/how-to/use-with-react#cleanup
+    return () => {
+      // khi component bi unmount thi se remove listener
+      socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveNewInvitation)
+    }
+  }, [dispatch, currentUser._id])
 
   // Cap nhat trang thai cua 1 cai loi moi join board
   const updateBoardInvitation = (status, invitationId) => {
     // console.log('status: ', status)
     // console.log('invitationId: ', invitationId)
     dispatch(updateBoardInvitationAPI({ status, invitationId })).then(res => {
-      console.log('res: ', res)
+      // console.log('res: ', res)
+      if (res.payload.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
+        navigate(`/boards/${res.payload.boardInvitation.boardId}`)
+      }
     })
   }
 
@@ -60,7 +99,8 @@ function Notifications() {
         <Badge
           color='warning'
           // variant="none"
-          variant='dot'
+          // variant='dot'
+          variant={newNotifications ? 'dot' : 'none'}
           sx={{ cursor: 'pointer' }}
           id='basic-button-open-notification'
           aria-controls={open ? 'basic-notification-drop-down' : undefined}
@@ -70,8 +110,7 @@ function Notifications() {
         >
           <NotificationsNoneIcon
             sx={{
-              // color: 'white'
-              color: 'yellow'
+              color: newNotifications ? 'yellow' : 'white'
             }}
           />
         </Badge>

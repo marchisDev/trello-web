@@ -8,7 +8,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 
-function CardActivitySection({ cardComments = [], onAddCardComment}) {
+function CardActivitySection({ cardComments = [], onAddCardComment }) {
   const currentUser = useSelector(selectCurrentUser)
 
   const handleAddCardComment = (event) => {

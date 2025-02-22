@@ -1,7 +1,4 @@
-/**
- * Author: TrungQuanDev - Một Lập Trình Viên
- * YouTube: https://youtube.com/@trungquandev
- */
+
 import { useState, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'

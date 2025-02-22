@@ -1,4 +1,4 @@
-// TrungQuanDev: https://youtube.com/@trungquandev
+
 import Alert from '@mui/material/Alert'
 
 // Component này có nhiệm vụ trả về một Alert Message cho field chỉ định (nếu có).

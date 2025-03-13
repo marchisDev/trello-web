@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Menu from '@mui/material/Menu'
@@ -29,7 +28,8 @@ import {
   updateCurrentActiveBoard,
   selectCurrentActiveBoard
 } from '~/redux/activeBoard/activeBoardSlice'
-import { createNewCardAPI, deleteColumnDetailAPI } from '~/apis'
+import { createNewCardAPI, deleteColumnDetailAPI, updateColumnDetailAPI } from '~/apis'
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 function Column({ column }) {
   const dispatch = useDispatch()
   // khong dung toi useState vi chung ta se dung Redux de quan ly state cua Board
@@ -170,6 +170,20 @@ function Column({ column }) {
       .catch(() => {})
   }
 
+  const onUpdatedColumnTitle = (newTitle) => {
+    // goi API update Column title va xu li du lieuu board trong redux
+    updateColumnDetailAPI(column._id, { title: newTitle }).then(() => {
+      const newBoard = cloneDeep(board)
+      const columnToUpdate = newBoard.columns.find(
+        (c) => c._id === column._id
+      )
+      if (columnToUpdate) {
+        columnToUpdate.title = newTitle
+      }
+      dispatch(updateCurrentActiveBoard(newBoard))
+    })
+  }
+
   return (
     // Phải bọc div ở đây vì vấn đề chiều cao column khi kéo thả có bug kiểu flickering
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
@@ -197,16 +211,11 @@ function Column({ column }) {
             justifyContent: 'space-between'
           }}
         >
-          <Typography
-            variant='h6'
-            sx={{
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}
-          >
-            {column?.title}
-          </Typography>
+          <ToggleFocusInput
+            value={ column?.title }
+            onChangedValue={onUpdatedColumnTitle}
+            data-no-dnd='true'
+          />
           <Box>
             <Tooltip title='More options'>
               <ExpandMoreIcon

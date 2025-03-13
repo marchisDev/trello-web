@@ -9,8 +9,12 @@ export default defineConfig({
     'process.env': process.env
   },
   plugins: [react(), svgr()],
-  // base: './'
+  base: './',
   resolve: {
     alias: [{ find: '~', replacement: '/src' }]
+  },
+  build: {
+    outDir: 'dist', // Vercel cần output vào thư mục này
+    emptyOutDir: true
   }
 })

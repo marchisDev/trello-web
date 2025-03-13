@@ -10,7 +10,16 @@ export default defineConfig({
   },
   plugins: [react(), svgr()],
   // base: './'
+  base: '/', // Đảm bảo base path đúng
+  server: {
+    historyApiFallback: true // Giúp xử lý route đúng trên local (nếu cần)
+  },
   resolve: {
     alias: [{ find: '~', replacement: '/src' }]
+  },
+  build: {
+    outDir: 'dist', // Vercel cần output vào thư mục này
+    assetsDir: 'assets', // Chỉ định thư mục chứa assets
+    emptyOutDir: true // Xóa thư mục cũ trước khi build lại
   }
 })
